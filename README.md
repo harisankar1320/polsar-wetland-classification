@@ -27,10 +27,10 @@ Random Forest
 
 The four Yamaguchi components used as features were:
 
-- **Ps** — Surface / odd-bounce
-- **Pd** — Double-bounce
-- **Pv** — Volume
-- **Ph** — Helix
+- **Ps** - Surface / odd-bounce
+- **Pd** - Double-bounce
+- **Pv** - Volume
+- **Ph** - Helix
 
 ### Decomposition Results
 
@@ -81,7 +81,7 @@ The wet vegetation classes remained difficult to separate, particularly **Wet gr
 
 ---
 
-## Combined Model — Feature Importance
+## Combined Model - Feature Importance
 
 The impurity-based Random Forest importance ranked the features approximately:
 
