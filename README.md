@@ -37,11 +37,11 @@ The four Yamaguchi components used as features were:
 
 | Surface / Odd-bounce | Double-bounce |
 |---|---|
-| ![Surface](images/y_odd.png) | ![Double-bounce](images/y_double_bounce.png) |
+| ![Surface](Images/y_odd.png) | ![Double-bounce](Images/y_double_bounce.png) |
 
 | Volume | Helix |
 |---|---|
-| ![Volume](images/y_volume.png) | ![Helix](images/y_helix.png) |
+| ![Volume](Images/y_volume.png) | ![Helix](Images/y_helix.png) |
 
 A power-conservation check was performed by comparing:
 
@@ -87,14 +87,14 @@ The impurity-based Random Forest importance ranked the features approximately:
 
 `HVHV > HHHH > Pv > VVVV > Pd > Ph > ...`
 
-![Feature Importance](images/feature_importance.png)
+![Feature Importance](Images/feature_importance.png)
 ---
 
 ## Permutation Importance
 
 Using **macro-F1** as the scoring metric, the strongest permutation importance was observed for **Ph**, followed by **Im_HHHV** and **Ps**.
 
-![Permutation Importance](images/permutation_importance.png)
+![Permutation Importance](Images/permutation_importance.png)
 
 The two importance methods measure different things: tree-split contribution versus the change in test performance after shuffling a feature.
 
