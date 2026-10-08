@@ -124,11 +124,11 @@ The same polygon-level train/test split was used for all experiments:
 - **67,693 training pixels**
 - **23,016 test pixels**
 
-| Experiment | Features | Overall Accuracy | Macro-F1 |
-|---|---:|---:|---:|
-| **A — Yamaguchi** | 4 | **80.66%** | **0.34** |
-| **B — Original PolSAR** | 9 | **85.60%** | **0.37** |
-| **C — Original + Yamaguchi** | 13 | **86.78%** | **0.38** |
+| Experiment | Features |
+|---|---:|---:|
+| **A — Yamaguchi** |
+| **B — Original PolSAR** |
+| **C — Original + Yamaguchi** |
 
 ---
 
