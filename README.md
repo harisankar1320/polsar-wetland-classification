@@ -125,7 +125,7 @@ The same polygon-level train/test split was used for all experiments:
 - **23,016 test pixels**
 
 | Experiment | Features |
-|---|---:|---:|
+|---|---:|
 | **A — Yamaguchi** |
 | **B — Original PolSAR** |
 | **C — Original + Yamaguchi** |
