@@ -115,7 +115,7 @@ The decomposition showed good agreement for pixels with sufficient total power.
 
 ---
 
-## Random Forest Experiments
+## Random Forest
 
 The same polygon-level train/test split was used for all experiments:
 
@@ -123,12 +123,6 @@ The same polygon-level train/test split was used for all experiments:
 - **20 test polygons**
 - **67,693 training pixels**
 - **23,016 test pixels**
-
-| Experiment | Features |
-|---|---:|
-| **A — Yamaguchi** |
-| **B — Original PolSAR** |
-| **C — Original + Yamaguchi** |
 
 ---
 
