@@ -206,99 +206,166 @@ The models were trained using:
 
 ---
 
-## Results
+# Classification Results
 
-| Experiment | Feature Set | Features | Overall Accuracy | Macro-F1 |
-|---|---|---:|---:|---:|
-| **A** | Yamaguchi | 4 | **80.66%** | **0.34** |
-| **B** | Original PolSAR | 9 | **85.60%** | **0.37** |
-| **C** | Original + Yamaguchi | 13 | **86.78%** | **0.38** |
+| Feature configuration | Features | Overall Accuracy | Macro-F1 |
+|---|---:|---:|---:|
+| Yamaguchi | 4 | **80.66%** | **0.34** |
+| Original PolSAR | 9 | **85.60%** | **0.37** |
+| **Original + Yamaguchi** | **13** | **86.78%** | **0.38** |
 
-### Main Findings
+The combined feature set produced the best overall performance.
 
-The **combined 13-feature model achieved the highest overall accuracy**.
+Compared with the original PolSAR features, the combined model improved OA by:
 
-- Original PolSAR → Combined: **+1.18 percentage points OA**
-- Yamaguchi → Combined: **+6.12 percentage points OA**
-- Yamaguchi → Original PolSAR: **+4.94 percentage points OA**
+$$86.78\%-85.60\%=1.18$$
 
-The original full-polarimetric features performed better than Yamaguchi features alone, while the Yamaguchi components provided additional complementary information when combined with the original features.
+percentage points.
 
-Wet vegetation remained challenging to separate, particularly **Wet graminoid and Wet shrubs**.
+Compared with Yamaguchi-only features, the improvement was:
+
+$$86.78\%-80.66\%=6.12$$
+
+percentage points.
 
 ---
 
-## Feature Importance
+# Per-Class Performance
 
-### Random Forest Impurity Importance
+For the combined feature configuration, the observed test performance was approximately:
 
-The approximate feature ranking of the combined model was:
+| Class | Precision | Recall | F1 |
+|---|---:|---:|---:|
+| Land | 0.95 | 0.91 | **0.93** |
+| Open water | 0.68 | 0.77 | **0.72** |
+| Wet graminoid | 0.21 | 0.17 | **0.19** |
+| Wet shrubs | 0.02 | 0.22 | **0.04** |
+| Wet forest | — | — | **Not evaluated** |
+
+The low F1 values for Wet graminoid and Wet shrubs are an important result rather than something that should be hidden by the overall accuracy.
+
+The test set contains many more Land pixels than minority wetland vegetation pixels. Consequently, the classifier can achieve high overall accuracy while still having poor performance on some wetland classes.
+
+This is why **Macro-F1 is reported alongside OA**.
+
+---
+
+# Interpretation of Classification Performance
+
+### 1. Original PolSAR information is stronger than decomposition alone
+
+Original PolSAR features achieved **85.60% OA** compared with **80.66%** for Yamaguchi-only features.
+
+This indicates that the original covariance information contains useful information that is not fully represented by the four decomposition powers.
+
+### 2. Yamaguchi features provide complementary information
+
+Combining the original PolSAR features with Yamaguchi features increased OA from **85.60% to 86.78%** and Macro-F1 from **0.37 to 0.38**.
+
+This suggests that the decomposition features provide additional information to the original covariance features.
+
+### 3. Wetland vegetation remains difficult to classify
+
+The very low F1 values for Wet graminoid and Wet shrubs indicate substantial class confusion.
+
+Possible contributing factors include:
+
+- strong class imbalance
+- limited polygon samples
+- spatial correlation between neighboring pixels
+- overlap in polarimetric scattering behaviour
+- heterogeneous wetland vegetation
+- mixed pixels and transition zones
+
+Therefore, the main conclusion is **not** that Yamaguchi decomposition solves wetland classification.
+
+Instead:
+
+> **Yamaguchi decomposition provides complementary polarimetric information and produces a small improvement when combined with the original PolSAR features, while minority wetland vegetation classes remain difficult to discriminate.**
+
+---
+
+# Feature Importance
+
+Random Forest impurity-based feature importance was calculated for the combined 13-feature model.
+
+![Feature importance](Images/feature_importance.png)
+
+The most important features included both original PolSAR and Yamaguchi-derived variables.
+
+Feature importance should not be interpreted as a direct physical percentage contribution to classification. Correlated features can distribute importance among one another.
+
+---
+
+# Permutation Importance
+
+Permutation importance was evaluated using Macro-F1 as the scoring metric.
+
+![Permutation importance](Images/permutation_importance.png)
+
+The permutation results showed particularly strong contributions from features including:
+
+- Helix $P_h$
+- imaginary HHHV
+- Surface $P_s$
+- HHHH
+- VVVV
+- imaginary HVVV
+
+Permutation importance indicates how much model performance changes when a feature's information is disrupted. It should not be interpreted as direct physical dominance of that scattering mechanism.
+
+---
+
+# Confusion Matrix
+
+The combined model produced the following pixel-level confusion matrix:
 
 ```text
-HVHV > HHHH > Pv > VVVV > Pd > Ph > ...
+                 Predicted
+               Land  Water  WG  WS  WF
+Actual Land    17399 1149  324 322   0
+       Water     691 2463   36   1   0
+       WG        197    6   97 268   0
+       WS         48    0    1  14   0
+       WF          0    0    0   0   0
 ```
 
-![Random Forest Feature Importance](Images/feature_importance.png)
+The matrix shows:
 
-The decomposition features were used by the Random Forest, with **Pv, Pd and Ph** appearing among the higher-ranked features.
+- strong Land classification
+- strong Open Water classification
+- substantial confusion involving Wet graminoid and Wet shrubs
+- no independent Wet Forest test samples
 
----
-
-## Permutation Importance
-
-Permutation importance was calculated using **macro-F1** as the evaluation metric.
-
-![Permutation Importance](Images/permutation_importance.png)
-
-The strongest permutation importance was observed for:
-
-```text
-Ph
-Im_HHHV
-Ps
-HHHH
-VVVV
-...
-```
-
-Impurity importance and permutation importance measure different aspects of feature usefulness:
-
-- **Impurity importance:** contribution to tree split decisions.
-- **Permutation importance:** change in model performance after randomly shuffling a feature.
+The confusion matrix supports the Macro-F1 results and demonstrates why OA alone does not adequately describe performance.
 
 ---
 
-## Evaluation Metrics
+# Limitations
 
-Overall Accuracy was calculated as:
+### Limited minority-class samples
 
-$$
-OA =
-\frac{\text{Number of correctly classified samples}}
-{\text{Total number of samples}}
-$$
+Wet shrubs and Wet forest have very few polygons. Wet Forest has only one polygon, which was retained for training and therefore has no independent test sample.
 
-For each class:
+### Class imbalance
 
-$$
-F1 = \frac{2PR}{P+R}
-$$
+The test pixels are dominated by Land. This can inflate overall accuracy relative to minority-class performance.
 
-where $P$ is precision and $R$ is recall.
+### Spatial dependence
 
-Macro-F1 is the mean F1 score across the five classes.
+Pixels within a polygon are spatially correlated. A polygon-level split reduces direct pixel overlap between training and testing, but spatial dependence can still exist between nearby polygons.
 
----
+### Wetland heterogeneity
 
-## Limitations
+Wetland vegetation classes can contain substantial internal variability in structure, moisture, and scattering behaviour.
 
-**Wet forest:** only one labelled polygon was available. It was therefore retained in the training set, meaning that independent test performance for Wet forest could not be evaluated.
+### Feature correlation
 
-The strong pixel-level class imbalance and spatial correlation within wetland polygons also mean that overall accuracy alone does not fully describe classification performance. Macro-F1 and class-level results are therefore reported alongside overall accuracy.
+The original PolSAR and decomposition features are not completely independent. Consequently, Random Forest feature importance should be interpreted carefully.
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```text
 polsar-wetland-classification/
@@ -318,19 +385,47 @@ polsar-wetland-classification/
 
 ---
 
-## Conclusion
+# Main Results
 
-This study shows that:
+```text
+Yamaguchi only
+      │
+      └── OA: 80.66%
+          Macro-F1: 0.34
 
-- Original full-polarimetric SAR features outperform Yamaguchi features alone.
-- Yamaguchi decomposition provides complementary information for wetland classification.
-- Combining the original PolSAR and Yamaguchi features produced the best result.
-- The **13-feature combined model achieved 86.78% overall accuracy and 0.38 Macro-F1**.
-- Separating wet vegetation classes remains the main classification challenge.
+Original PolSAR
+      │
+      └── OA: 85.60%
+          Macro-F1: 0.37
 
-- **Limitation:** Wet forest had only one labelled polygon, which was kept in the training set. Therefore, independent test performance for Wet forest could not be evaluated.
+Original PolSAR + Yamaguchi
+      │
+      └── OA: 86.78%
+          Macro-F1: 0.38
+```
 
-The results demonstrate the potential of combining **physical polarimetric scattering descriptors** with **data-driven machine-learning features** for wetland classification.
+The combined feature configuration performs best.
+
+However, the relatively low Macro-F1 compared with OA demonstrates that the model's performance is uneven across classes. Land and Open Water are classified considerably better than Wet graminoid and Wet shrubs.
+
+---
+
+# Conclusion
+
+This project evaluates the contribution of Yamaguchi 4-component polarimetric decomposition to UAVSAR-based wetland classification.
+
+The results show that:
+
+1. **Original full-polarimetric SAR features outperform Yamaguchi-only features.**
+2. **Combining original PolSAR and Yamaguchi features provides the best overall performance.**
+3. **Yamaguchi features provide complementary information rather than replacing the original PolSAR information.**
+4. **Overall accuracy reaches 86.78%, while Macro-F1 is 0.38.**
+5. **The low Macro-F1 highlights the difficulty of classifying minority wetland vegetation classes.**
+6. **Wet graminoid and Wet shrubs remain substantially harder to classify than Land and Open Water.**
+7. **Wet Forest cannot be independently evaluated because only one polygon was available and it was retained for training.**
+
+The analysis therefore supports the conclusion that **polarimetric decomposition can add useful information to full-polarimetric SAR classification, but improved discrimination of minority wetland vegetation classes requires better class representation and/or additional information.**
+
 
 
 
